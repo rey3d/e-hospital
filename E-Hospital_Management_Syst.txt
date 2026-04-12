@@ -1,0 +1,55 @@
+Building E-Hospital Management System (MERN Project)
+
+Patients 
+	login and register
+	Book Appointment
+	view application status
+	view medical reports
+Doctor
+	Login
+	View patient appointments
+	Update appointment status
+	Upload reports
+Admin
+	Add doctors
+	View patients
+	Manage appointments
+	
+
+Important libraries for Full Stack Project
+
+1) Mongoose
+	->It helps Node.js to communicate with Mongodb easily.(Using Complete mongodb will be messy.)
+	=>Need to see the basic syntax of Mongoose
+2) Cors (Cross Origin Resource Sharing)
+	->It allows the react frontend to connect with express backend.
+	-> React runs on port "3000" & Express on "5000".
+3) dotenv
+	->Helps in storing the secret data in environment variables in (.env) files.
+4) jswebtoken (JWT)
+	->JWT used for login authentication.
+	=>Working of this 
+		When user logs in:
+			1) Server verifies password
+			2)  Server sends a token
+		Example token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+		User sends this token with every request.
+5) bcryptjs
+	->encrypts passwords before storing in the database.
+
+extra one module ""
+
+6) npm install nodemon --save-dev  
+	->nodemon is a tool that automatically restarts your server when you change your code.
+	->"--save-dev " -> This means install as a development dependency.
+
+*** URI instead of URL because it is "URI = Uniform Resource Identifier" It is a standard format used to connect to resources like databases.
+Steps for developing
+	1) Development of backend (in backend folder)
+		-> npm init -y
+		-> npm install express mongoose cors dotenv jsonwebtoken bcryptojs
+		-> npm install nodemon --save-dev 
+		-> create server.js and write code inside it.
+	
+
+In server file we have used the gitignore so that fies mentioned in the this files will not be pushed into the github. .
