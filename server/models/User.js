@@ -19,7 +19,7 @@ const userSchema=mongoose.Schema(
         },
         role:{
             type:String,
-            name:['patient','doctor','admin'],
+            enum:['patient','doctor','admin'],
             default:'patient',
         },
         phone:{
@@ -34,10 +34,9 @@ const userSchema=mongoose.Schema(
 );
 
 // Hash password before saving
-userSchema.pre("save",async function (next){
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 // Compare entered password with hashed password

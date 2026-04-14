@@ -52,4 +52,27 @@ Steps for developing
 		-> create server.js and write code inside it.
 	
 
-In server file we have used the gitignore so that fies mentioned in the this files will not be pushed into the github. .
+In server file we have used the gitignore so that fies mentioned in the this files will not be pushed into the github.
+
+
+user logins (email & password) -> server responds with (JWT token) -> this token is used for other operations.
+
+structure of the JWT token -> eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEyMyIsInJvbGUiOiJkb2N0b3IifQ.xyzABC123
+
+it has three parts 1. header -> algorithm used , 2. payload -> payload + role, 3.  signature -> proves it was not tampered.
+
+Basic woking structure
+
+			URL (route)
+				↓
+			authRoutes.js        ← "which controller handles this URL?"
+				↓
+			authMiddleware.js    ← "is this person allowed in?" (runs first)
+				↓
+			authController.js    ← "ok you're allowed, here's your data"
+				↓
+			Response sent back
+
+register and login uses the POST methods. And for getting the user profile we are going the get method by passing the "key value" in header.  In value "Bearer <token from login>"
+key					value
+Authorization		Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGRiMzljOWM0OTExYzY2Nzg2OTcwYiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3NjEzNzIyMiwiZXhwIjoxNzc2NzQyMDIyfQ.ZvJafSTBk5mqTUIfKwesbYSOFQOkcHeoxX2iA9ff59o
