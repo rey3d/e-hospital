@@ -76,3 +76,49 @@ Basic woking structure
 register and login uses the POST methods. And for getting the user profile we are going the get method by passing the "key value" in header.  In value "Bearer <token from login>"
 key					value
 Authorization		Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGRiMzljOWM0OTExYzY2Nzg2OTcwYiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3NjEzNzIyMiwiZXhwIjoxNzc2NzQyMDIyfQ.ZvJafSTBk5mqTUIfKwesbYSOFQOkcHeoxX2iA9ff59o
+
+Frontend => in react we are going to use the axios (for connecting with backend server) and react-router-dom (for page nagivation).
+Folder structure in frontend
+client/src/
+├── api/
+│   └── axios.js          ← axios instance pointing to our backend
+├── context/
+│   └── AuthContext.jsx   ← global auth state
+├── pages/
+│   ├── Login.jsx
+│   └── Register.jsx
+├── components/
+│   └── PrivateRoute.jsx  ← protects frontend routes
+├── App.jsx
+└── main.jsx
+
+React (frontend)
+      ↓  "Hey, log this user in"
+   Axios  ←--- messenger
+      ↓  sends HTTP request
+Express (backend)
+      ↓  processes it
+   Axios  ←--- brings back the response
+      ↓
+React gets the data and shows it on screen
+
+Flow in our application
+
+User clicks Login button
+        ↓
+Login.jsx calls → API.post("/auth/login", { email, password })
+        ↓
+axios.js adds baseURL → http://localhost:5000/api/auth/login
+        ↓
+Backend receives request → verifies → sends back token
+        ↓
+We save token to localStorage
+        ↓
+Every future request → axios.js automatically adds token to header
+        ↓
+Backend sees token → allows access to protected routes
+
+*** I have given pause for the project to learn axios and routes in the frontend.
+
+Due to small mismatch from AuthContext to PrivateRoute the webpage has redirected to same page only. The mismatch "const [user,setUserData]" capital U used 
+AuthContext but small 'u ' in the PrivateRoute.
