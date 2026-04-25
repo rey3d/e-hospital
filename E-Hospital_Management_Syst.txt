@@ -131,3 +131,10 @@ Backend sees token → allows access to protected routes
 
 Due to small mismatch from AuthContext to PrivateRoute the webpage has redirected to same page only. The mismatch "const [user,setUserData]" capital U used 
 AuthContext but small 'u ' in the PrivateRoute.
+
+to install tailwindcss 
+
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+change the configure.js

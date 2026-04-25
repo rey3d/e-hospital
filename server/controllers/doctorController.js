@@ -1,11 +1,7 @@
 const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
+const Notification = require("../models/Notification");
 
-// -----------------------------------------------
-// @desc    Get doctor profile
-// @route   GET /api/doctor/profile
-// @access  Doctor only
-// -----------------------------------------------
 const getDoctorProfile = async (req, res) => {
   try {
     const doctor = await Doctor.findOne({ userId: req.user._id })
@@ -19,26 +15,23 @@ const getDoctorProfile = async (req, res) => {
   }
 };
 
-// -----------------------------------------------
-// @desc    Get all appointments for logged in doctor
-// @route   GET /api/doctor/appointments
-// @access  Doctor only
-// -----------------------------------------------
 const getDoctorAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find({ doctorId: req.user._id })
-      .populate("patientId", "name email phone");
+    const { status, date } = req.query;
+
+    let filter = { doctorId: req.user._id };
+    if (status) filter.status = status;
+    if (date) filter.date = date;
+
+    const appointments = await Appointment.find(filter)
+      .populate("patientId", "name email phone")
+      .sort({ createdAt: -1 });
     res.status(200).json(appointments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// -----------------------------------------------
-// @desc    Update appointment status + add notes/prescription
-// @route   PUT /api/doctor/appointments/:id
-// @access  Doctor only
-// -----------------------------------------------
 const updateAppointment = async (req, res) => {
   try {
     const { status, notes, prescription } = req.body;
@@ -48,26 +41,35 @@ const updateAppointment = async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
-    // Update fields
     if (status) appointment.status = status;
     if (notes) appointment.notes = notes;
     if (prescription) appointment.prescription = prescription;
 
     await appointment.save();
+
+    // Notify patient about status update
+    if (status) {
+      await Notification.create({
+        userId: appointment.patientId,
+        message: `Your appointment on ${appointment.date} at ${appointment.time} is now ${status}`,
+        type: "appointment",
+      });
+    }
+
     res.status(200).json(appointment);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// -----------------------------------------------
-// @desc    Get all doctors (for patients to browse)
-// @route   GET /api/doctor/all
-// @access  Private (any logged in user)
-// -----------------------------------------------
 const getAllDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find({ isApproved: true })
+    const { specialization } = req.query;
+
+    let filter = { isApproved: true };
+    if (specialization) filter.specialization = specialization;
+
+    const doctors = await Doctor.find(filter)
       .populate("userId", "name email phone");
     res.status(200).json(doctors);
   } catch (err) {

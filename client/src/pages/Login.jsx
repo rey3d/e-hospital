@@ -6,11 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,16 +18,12 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const { data } = await API.post("/auth/login", formData);
-      
       login(data);
-
       if (data.role === "admin") navigate("/admin/dashboard");
       else if (data.role === "doctor") navigate("/doctor/dashboard");
       else navigate("/patient/dashboard");
-
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
@@ -40,113 +32,66 @@ const Login = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>E-Hospital Login</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-blue-700">🏥 E-Hospital</h1>
+          <p className="text-gray-500 mt-1 text-sm">Sign in to your account</p>
+        </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {/* Error */}
+        {error && (
+          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4 border border-red-200">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Email</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              style={styles.input}
               placeholder="Enter your email"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Password</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              style={styles.input}
               placeholder="Enter your password"
               required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
-          <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
+          >
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
 
-        <p style={styles.link}>
+        <p className="text-center text-sm text-gray-500 mt-6">
           Don't have an account?{" "}
-          <Link to="/register">Register here</Link>
+          <Link to="/register" className="text-blue-600 font-medium hover:underline">
+            Register here
+          </Link>
         </p>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f4f8",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: "2rem",
-    borderRadius: "12px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-    width: "100%",
-    maxWidth: "400px",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "1.5rem",
-    color: "#2d3748",
-  },
-  formGroup: {
-    marginBottom: "1rem",
-  },
-  label: {
-    display: "block",
-    marginBottom: "0.4rem",
-    fontSize: "14px",
-    color: "#4a5568",
-  },
-  input: {
-    width: "100%",
-    padding: "0.6rem 0.8rem",
-    borderRadius: "8px",
-    border: "1px solid #cbd5e0",
-    fontSize: "14px",
-    boxSizing: "border-box",
-  },
-  button: {
-    width: "100%",
-    padding: "0.75rem",
-    backgroundColor: "#4299e1",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "16px",
-    cursor: "pointer",
-    marginTop: "0.5rem",
-  },
-  error: {
-    color: "red",
-    fontSize: "13px",
-    marginBottom: "1rem",
-    textAlign: "center",
-  },
-  link: {
-    textAlign: "center",
-    marginTop: "1rem",
-    fontSize: "14px",
-  },
 };
 
 export default Login;

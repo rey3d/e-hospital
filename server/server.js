@@ -31,6 +31,8 @@ app.use("/api/doctor", doctorRoutes);
 const appointmentRoutes = require("./routes/appointmentRoutes");
 app.use("/api/appointments", appointmentRoutes);
 
+const notificationRoutes = require("./routes/notificationRoutes");
+app.use("/api/notifications", notificationRoutes);
 
 app.get("/",(req,res)=>{
     res.send("E-hospital API is running...");

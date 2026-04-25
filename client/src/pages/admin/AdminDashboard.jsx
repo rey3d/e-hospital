@@ -8,39 +8,30 @@ const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [activeTab, setActiveTab] = useState("doctors");
   const [loading, setLoading] = useState(true);
-
-  // Form state for adding doctor
   const [doctorForm, setDoctorForm] = useState({
-    name: "", email: "", password: "",
-    phone: "", specialization: "", experience: "",
-    fees: "", bio: "",
+    name: "", email: "", password: "", phone: "",
+    specialization: "", experience: "", fees: "", bio: "",
   });
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     try {
-      const [doctorsRes, usersRes, appointmentsRes] = await Promise.all([
+      const [d, u, a] = await Promise.all([
         API.get("/admin/doctors"),
         API.get("/admin/users"),
         API.get("/admin/appointments"),
       ]);
-      setDoctors(doctorsRes.data);
-      setUsers(usersRes.data);
-      setAppointments(appointmentsRes.data);
+      setDoctors(d.data);
+      setUsers(u.data);
+      setAppointments(a.data);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDoctorFormChange = (e) => {
-    setDoctorForm({ ...doctorForm, [e.target.name]: e.target.value });
   };
 
   const handleAddDoctor = async (e) => {
@@ -50,11 +41,7 @@ const AdminDashboard = () => {
     try {
       await API.post("/admin/doctors", doctorForm);
       setFormSuccess("Doctor added successfully!");
-      setDoctorForm({
-        name: "", email: "", password: "",
-        phone: "", specialization: "", experience: "",
-        fees: "", bio: "",
-      });
+      setDoctorForm({ name: "", email: "", password: "", phone: "", specialization: "", experience: "", fees: "", bio: "" });
       fetchData();
     } catch (err) {
       setFormError(err.response?.data?.message || "Failed to add doctor");
@@ -62,7 +49,7 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Delete this user?")) return;
     try {
       await API.delete(`/admin/users/${id}`);
       fetchData();
@@ -71,41 +58,55 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <p style={{ textAlign: "center", marginTop: "2rem" }}>Loading...</p>;
+  const statusColor = (status) => {
+    if (status === "confirmed") return "bg-green-100 text-green-700";
+    if (status === "cancelled") return "bg-red-100 text-red-700";
+    if (status === "completed") return "bg-blue-100 text-blue-700";
+    return "bg-yellow-100 text-yellow-700";
+  };
 
-  return (
+  const tabs = ["doctors", "users", "appointments", "addDoctor"];
+
+  if (loading) return (
     <div>
       <Navbar />
-      <div style={styles.container}>
-        <h2 style={styles.heading}>Admin Dashboard</h2>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Admin Dashboard</h2>
 
         {/* Stats */}
-        <div style={styles.statsRow}>
-          <div style={styles.statCard}>
-            <h3>{users.length}</h3>
-            <p>Total Users</p>
-          </div>
-          <div style={styles.statCard}>
-            <h3>{doctors.length}</h3>
-            <p>Total Doctors</p>
-          </div>
-          <div style={styles.statCard}>
-            <h3>{appointments.length}</h3>
-            <p>Total Appointments</p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { label: "Total Users", value: users.length, color: "bg-blue-50 text-blue-700" },
+            { label: "Total Doctors", value: doctors.length, color: "bg-green-50 text-green-700" },
+            { label: "Total Appointments", value: appointments.length, color: "bg-purple-50 text-purple-700" },
+          ].map((stat) => (
+            <div key={stat.label} className={`${stat.color} rounded-xl p-5 text-center`}>
+              <p className="text-3xl font-bold">{stat.value}</p>
+              <p className="text-sm mt-1 font-medium">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Tabs */}
-        <div style={styles.tabs}>
-          {["doctors", "users", "appointments", "addDoctor"].map((tab) => (
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              style={{
-                ...styles.tabBtn,
-                backgroundColor: activeTab === tab ? "#2b6cb0" : "#e2e8f0",
-                color: activeTab === tab ? "#fff" : "#2d3748",
-              }}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                activeTab === tab
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+              }`}
             >
               {tab === "addDoctor" ? "Add Doctor" : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -114,30 +115,24 @@ const AdminDashboard = () => {
 
         {/* Doctors Tab */}
         {activeTab === "doctors" && (
-          <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead>
+          <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Specialization</th>
-                  <th style={styles.th}>Experience</th>
-                  <th style={styles.th}>Fees</th>
-                  <th style={styles.th}>Status</th>
+                  {["Name", "Specialization", "Experience", "Fees", "Status"].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {doctors.map((doc) => (
-                  <tr key={doc._id}>
-                    <td style={styles.td}>{doc.userId?.name}</td>
-                    <td style={styles.td}>{doc.specialization}</td>
-                    <td style={styles.td}>{doc.experience} yrs</td>
-                    <td style={styles.td}>₹{doc.fees}</td>
-                    <td style={styles.td}>
-                      <span style={{
-                        ...styles.badge,
-                        backgroundColor: doc.isApproved ? "#c6f6d5" : "#fed7d7",
-                        color: doc.isApproved ? "#276749" : "#9b2c2c",
-                      }}>
+                {doctors.map((doc, i) => (
+                  <tr key={doc._id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-4 py-3 font-medium">{doc.userId?.name}</td>
+                    <td className="px-4 py-3">{doc.specialization}</td>
+                    <td className="px-4 py-3">{doc.experience} yrs</td>
+                    <td className="px-4 py-3">₹{doc.fees}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${doc.isApproved ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                         {doc.isApproved ? "Approved" : "Pending"}
                       </span>
                     </td>
@@ -150,39 +145,34 @@ const AdminDashboard = () => {
 
         {/* Users Tab */}
         {activeTab === "users" && (
-          <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead>
+          <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Email</th>
-                  <th style={styles.th}>Role</th>
-                  <th style={styles.th}>Action</th>
+                  {["Name", "Email", "Role", "Action"].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td style={styles.td}>{user.name}</td>
-                    <td style={styles.td}>{user.email}</td>
-                    <td style={styles.td}>
-                      <span style={{
-                        ...styles.badge,
-                        backgroundColor:
-                          user.role === "admin" ? "#bee3f8" :
-                          user.role === "doctor" ? "#c6f6d5" : "#fefcbf",
-                        color:
-                          user.role === "admin" ? "#2b6cb0" :
-                          user.role === "doctor" ? "#276749" : "#975a16",
-                      }}>
+                {users.map((user, i) => (
+                  <tr key={user._id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-4 py-3 font-medium">{user.name}</td>
+                    <td className="px-4 py-3">{user.email}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        user.role === "admin" ? "bg-blue-100 text-blue-700" :
+                        user.role === "doctor" ? "bg-green-100 text-green-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      }`}>
                         {user.role}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-4 py-3">
                       {user.role !== "admin" && (
                         <button
                           onClick={() => handleDeleteUser(user._id)}
-                          style={styles.deleteBtn}
+                          className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg transition"
                         >
                           Delete
                         </button>
@@ -197,36 +187,24 @@ const AdminDashboard = () => {
 
         {/* Appointments Tab */}
         {activeTab === "appointments" && (
-          <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead>
+          <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th style={styles.th}>Patient</th>
-                  <th style={styles.th}>Doctor</th>
-                  <th style={styles.th}>Date</th>
-                  <th style={styles.th}>Time</th>
-                  <th style={styles.th}>Status</th>
+                  {["Patient", "Doctor", "Date", "Time", "Status"].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((apt) => (
-                  <tr key={apt._id}>
-                    <td style={styles.td}>{apt.patientId?.name}</td>
-                    <td style={styles.td}>{apt.doctorId?.name}</td>
-                    <td style={styles.td}>{apt.date}</td>
-                    <td style={styles.td}>{apt.time}</td>
-                    <td style={styles.td}>
-                      <span style={{
-                        ...styles.badge,
-                        backgroundColor:
-                          apt.status === "confirmed" ? "#c6f6d5" :
-                          apt.status === "cancelled" ? "#fed7d7" :
-                          apt.status === "completed" ? "#bee3f8" : "#fefcbf",
-                        color:
-                          apt.status === "confirmed" ? "#276749" :
-                          apt.status === "cancelled" ? "#9b2c2c" :
-                          apt.status === "completed" ? "#2b6cb0" : "#975a16",
-                      }}>
+                {appointments.map((apt, i) => (
+                  <tr key={apt._id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-4 py-3">{apt.patientId?.name}</td>
+                    <td className="px-4 py-3">{apt.doctorId?.name}</td>
+                    <td className="px-4 py-3">{apt.date}</td>
+                    <td className="px-4 py-3">{apt.time}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor(apt.status)}`}>
                         {apt.status}
                       </span>
                     </td>
@@ -239,11 +217,11 @@ const AdminDashboard = () => {
 
         {/* Add Doctor Tab */}
         {activeTab === "addDoctor" && (
-          <div style={styles.formCard}>
-            <h3 style={{ marginBottom: "1rem" }}>Add New Doctor</h3>
-            {formError && <p style={styles.error}>{formError}</p>}
-            {formSuccess && <p style={styles.success}>{formSuccess}</p>}
-            <form onSubmit={handleAddDoctor}>
+          <div className="bg-white rounded-xl shadow-sm p-6 max-w-lg">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Add New Doctor</h3>
+            {formError && <p className="text-red-500 text-sm mb-3">{formError}</p>}
+            {formSuccess && <p className="text-green-500 text-sm mb-3">{formSuccess}</p>}
+            <form onSubmit={handleAddDoctor} className="space-y-4">
               {[
                 { label: "Full Name", name: "name", type: "text" },
                 { label: "Email", name: "email", type: "email" },
@@ -254,50 +232,30 @@ const AdminDashboard = () => {
                 { label: "Fees (₹)", name: "fees", type: "number" },
                 { label: "Bio", name: "bio", type: "text" },
               ].map((field) => (
-                <div key={field.name} style={styles.formGroup}>
-                  <label style={styles.label}>{field.label}</label>
+                <div key={field.name}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
                   <input
                     type={field.type}
                     name={field.name}
                     value={doctorForm[field.name]}
-                    onChange={handleDoctorFormChange}
-                    style={styles.input}
+                    onChange={(e) => setDoctorForm({ ...doctorForm, [e.target.name]: e.target.value })}
                     required={field.name !== "bio"}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
               ))}
-              <button type="submit" style={styles.submitBtn}>Add Doctor</button>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition"
+              >
+                Add Doctor
+              </button>
             </form>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: { padding: "2rem", maxWidth: "1100px", margin: "0 auto" },
-  heading: { fontSize: "24px", marginBottom: "1.5rem", color: "#2d3748" },
-  statsRow: { display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap" },
-  statCard: {
-    flex: 1, minWidth: "140px", backgroundColor: "#ebf8ff",
-    borderRadius: "10px", padding: "1rem", textAlign: "center",
-  },
-  tabs: { display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" },
-  tabBtn: { padding: "8px 18px", borderRadius: "6px", border: "none", cursor: "pointer", fontWeight: "bold" },
-  tableWrapper: { overflowX: "auto" },
-  table: { width: "100%", borderCollapse: "collapse" },
-  th: { backgroundColor: "#2b6cb0", color: "#fff", padding: "10px 14px", textAlign: "left", fontSize: "14px" },
-  td: { padding: "10px 14px", borderBottom: "1px solid #e2e8f0", fontSize: "14px" },
-  badge: { padding: "3px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: "bold" },
-  deleteBtn: { backgroundColor: "#fc8181", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer" },
-  formCard: { backgroundColor: "#fff", padding: "2rem", borderRadius: "12px", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", maxWidth: "500px" },
-  formGroup: { marginBottom: "1rem" },
-  label: { display: "block", fontSize: "13px", marginBottom: "4px", color: "#4a5568" },
-  input: { width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #cbd5e0", fontSize: "14px", boxSizing: "border-box" },
-  submitBtn: { backgroundColor: "#2b6cb0", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", marginTop: "0.5rem" },
-  error: { color: "red", fontSize: "13px", marginBottom: "1rem" },
-  success: { color: "green", fontSize: "13px", marginBottom: "1rem" },
 };
 
 export default AdminDashboard;
