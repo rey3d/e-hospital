@@ -22,6 +22,16 @@ app.use(cookieParser());
 const authRoutes= require("./routes/authRoutes");
 app.use("/api/auth",authRoutes);
 
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/api/admin", adminRoutes);
+
+const doctorRoutes = require("./routes/doctorRoutes");
+app.use("/api/doctor", doctorRoutes);
+
+const appointmentRoutes = require("./routes/appointmentRoutes");
+app.use("/api/appointments", appointmentRoutes);
+
+
 app.get("/",(req,res)=>{
     res.send("E-hospital API is running...");
 });
