@@ -1,3 +1,0 @@
-h3abtWkbYUXbVSN0
-
-mongodb+srv://ehospitaluser:<h3abtWkbYUXbVSN0>@e-hospital.jwtuiby.mongodb.net/?appName=e-hospital
