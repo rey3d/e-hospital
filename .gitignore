@@ -1,2 +1,6 @@
 E-Hospital_Management_Syst.txt
 mongodb_altas.txt
+node_modules
+.env
+server/.env
+client/.env
