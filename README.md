@@ -67,12 +67,15 @@ npm run dev
 ## 🌐 Environment Variables
 
 **server/.env**
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_secret
+```
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
 PORT=5000
 NODE_ENV=production
+```
 
 **client/.env**
-
+```
 VITE_API_URL=http://localhost:5000/api
+```
 
