@@ -14,7 +14,7 @@ const app=express();
 app.use(cors({
     origin: [
     "http://localhost:5173",
-    "https://e-hospital-mu.vercel.app/" 
+    "https://e-hospital-mu.vercel.app" 
     ],
     credentials: true,
 }));
